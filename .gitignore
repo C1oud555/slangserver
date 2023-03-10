@@ -1,0 +1,4 @@
+.venv
+pygls.log
+.DS_Store
+**/__pycache__
