@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "slangserver"
+version = "0.1.0"
+description = "A systemverilog language server base on slang."
+authors = ["komer <hyluo.1999@qq.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pyslang = "^2.0.0"
+pygls = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
