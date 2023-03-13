@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
-import server
+import logging
+from server import svserver
 
-server.server.start_io()
+
+logging.basicConfig(filename="pygls.log", filemode="w", level=logging.INFO)
+logger = logging.getLogger("svlangserver logger")
+
+
+svserver.start_io()

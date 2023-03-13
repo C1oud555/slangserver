@@ -1,24 +1,39 @@
-from pyslang import (
-    SyntaxTree,
-    Compilation,
-    DiagnosticEngine,
-    TextDiagnosticClient,
-    Bag
-)
-from lsprotocol.types import Diagnostic, Position, DiagnosticSeverity, Range
+from pyslang import SyntaxTree, Compilation, DiagnosticEngine, TextDiagnosticClient, Bag
+
+from lsprotocol.types import Diagnostic, Position, DiagnosticSeverity, Range, Diagnostic
 
 from typing import Optional
 
+from serverHandlers import ServerHandler
+from pathlib import Path
+import logging
 
-def diagnose(uri: str, source: str) -> Optional[Diagnostic]:
-    return Diagnostic(
-        range=Range(
-            start=Position(line=1, character=1), end=Position(line=1, character=1)
-        ),
-        message="diagnose test",
-        severity=DiagnosticSeverity.Error,
-        source="compile",
-    )
+logger = logging.getLogger("svlangserver logger")
+
+
+def diagnose(root_path: str) -> Optional[Diagnostic]:
+    handler = ServerHandler(Path(root_path), "")
+    handler.addAllFiles()
+    diagnostics = handler.updateDiagnostics()
+    res = list()
+    for diag in diagnostics:
+        logger.warn(type(diag))
+        line = diag.line
+        col = diag.col
+        logger.warn(type(line))
+        res.append(
+            Diagnostic(
+                range=Range(
+                    start=Position(line=(line - 1), character=(col - 1)),
+                    end=Position(line=line, character=col),
+                ),
+                message=diag.message,
+                severity=DiagnosticSeverity.Error,
+                source="compile",
+            )
+        )
+
+    return res
 
 
 test_sv1 = """

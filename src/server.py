@@ -1,5 +1,3 @@
-import logging
-
 import slang_util
 from pygls.server import LanguageServer
 from lsprotocol.types import (
@@ -11,26 +9,27 @@ from lsprotocol.types import (
     DidSaveTextDocumentParams,
 )
 
-logging.basicConfig(filename="pygls.log", filemode="w", level=logging.INFO)
+import logging
+
 logger = logging.getLogger("svlangserver logger")
 
-server = LanguageServer("svlangserver", "v0.1")
+svserver = LanguageServer("svlangserver", "v0.1")
 
 
 def _publish_diagnostics(server: LanguageServer, uri: str) -> None:
     if uri not in server.workspace.documents:
         return
 
+    root_path = server.workspace.root_path
     doc = server.workspace.get_document(uri)
-    diagnostic = slang_util.diagnose(uri, doc.source)
-    diagnostics = [diagnostic] if diagnostic else []
+    diagnostics = slang_util.diagnose(root_path)
     server.publish_diagnostics(uri, diagnostics)
 
 
-@server.feature(TEXT_DOCUMENT_COMPLETION)
+@svserver.feature(TEXT_DOCUMENT_COMPLETION)
 def completions(params: CompletionParams):
     items = []
-    document = server.workspace.get_document(params.text_document.uri)
+    document = svserver.workspace.get_document(params.text_document.uri)
     current_line = document.lines[params.position.line].strip()
     logger.info("get completions request")
     if current_line.endswith("hello."):
@@ -46,6 +45,6 @@ def completions(params: CompletionParams):
     return CompletionList(is_incomplete=False, items=items)
 
 
-@server.feature(TEXT_DOCUMENT_DID_SAVE)
+@svserver.feature(TEXT_DOCUMENT_DID_SAVE)
 def did_save_diagnose(params: DidSaveTextDocumentParams) -> None:
-    _publish_diagnostics(server, params.text_document.uri)
+    _publish_diagnostics(svserver, params.text_document.uri)
