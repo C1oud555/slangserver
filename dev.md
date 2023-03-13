@@ -16,6 +16,8 @@
 
 
 ### road map to support features
+- [ ] Project source manage
+- [ ] compile option bag
 - [ ] initialize
 - [ ] diagnosti
 - [ ] completion

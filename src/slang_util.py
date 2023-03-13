@@ -3,6 +3,7 @@ from pyslang import (
     Compilation,
     DiagnosticEngine,
     TextDiagnosticClient,
+    Bag
 )
 from lsprotocol.types import Diagnostic, Position, DiagnosticSeverity, Range
 
