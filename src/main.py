@@ -3,9 +3,9 @@
 import logging
 from server import svserver
 
-
-logging.basicConfig(filename="pygls.log", filemode="w", level=logging.INFO)
-logger = logging.getLogger("svlangserver logger")
+logging.basicConfig(filename="slangserver.log", filemode="w", level=logging.INFO)
+logger = logging.getLogger("slangserver logger")
 
 
 svserver.start_io()
+

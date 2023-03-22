@@ -8,30 +8,32 @@ from serverHandlers import ServerHandler
 from pathlib import Path
 import logging
 
-logger = logging.getLogger("svlangserver logger")
+logger = logging.getLogger("slangserver logger")
 
 
-def diagnose(root_path: str) -> Optional[Diagnostic]:
+def diagnose(root_path: str, uri: str) -> Optional[Diagnostic]:
     handler = ServerHandler(Path(root_path), "")
     handler.addAllFiles()
     diagnostics = handler.updateDiagnostics()
-    res = list()
-    for diag in diagnostics:
-        logger.warn(type(diag))
+    res = []
+    logger.warn(len(diagnostics))
+    for diag in diagnostics[uri]:
+        message = diag.message
         line = diag.line
+        severity = diag.severity
         col = diag.col
-        logger.warn(type(line))
         res.append(
             Diagnostic(
                 range=Range(
                     start=Position(line=(line - 1), character=(col - 1)),
                     end=Position(line=line, character=col),
                 ),
-                message=diag.message,
-                severity=DiagnosticSeverity.Error,
+                message=message,
+                severity=severity,
                 source="compile",
             )
         )
+    logger.warn(f"diagnose result of {uri} is {res}")
 
     return res
 

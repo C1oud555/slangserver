@@ -11,18 +11,20 @@ from lsprotocol.types import (
 
 import logging
 
-logger = logging.getLogger("svlangserver logger")
+logger = logging.getLogger("slangserver logger")
 
-svserver = LanguageServer("svlangserver", "v0.1")
+svserver = LanguageServer("slangserver", "v0.1")
 
 
 def _publish_diagnostics(server: LanguageServer, uri: str) -> None:
+    logger.warn(f"_publish_diagnostics of {uri}")
     if uri not in server.workspace.documents:
         return
 
     root_path = server.workspace.root_path
     doc = server.workspace.get_document(uri)
-    diagnostics = slang_util.diagnose(root_path)
+    diagnostics = slang_util.diagnose(root_path, uri)
+    logger.warn(f"And the diagnose result is {diagnostics}")
     server.publish_diagnostics(uri, diagnostics)
 
 

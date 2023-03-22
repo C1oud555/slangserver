@@ -10,18 +10,19 @@ from pyslang import (
     Diagnostic,
     ReportedDiagnostic,
 )
+import pyslang
 from dataclasses import dataclass, field
 from pathlib import Path
 import logging
+from lsprotocol.types import DiagnosticSeverity
 
-logger = logging.getLogger("svlangserver logger")
+logger = logging.getLogger("slangserver logger")
 
 
 @dataclass
 class DiagnosticReport:
-    file_name: str
     message: str
-    severity: str
+    severity: DiagnosticSeverity
     line: int
     col: int
 
@@ -37,7 +38,8 @@ class ServerHandler:
         logger.warn("add files")
         self.sources.addAllFiles()
 
-    def updateDiagnostics(self) -> list[DiagnosticReport]:
+    def updateDiagnostics(self) -> dict[str, list[DiagnosticReport]]:
+        logger.warn("begin to diagnose")
         # recompile the design
         compilation = self.sources.compile()
         sm = self.sources.get_source_manager()
@@ -50,27 +52,49 @@ class ServerHandler:
         client.clear()
 
         diags = compilation.getAllDiagnostics()
-        res = []
+        logger.warn(len(diags))
+        res = {}
         for diag in diags:
             engine.issue(diag)
             sm = self.sources.get_source_manager()
             rel_filename = sm.getFileName(diag.location)
-            file_name = Path(rel_filename).absolute()
+            file_uri = Path(rel_filename).absolute().as_uri()
+            logger.warn(file_uri)
+            if not res.get(file_uri):  # initalize
+                logger.warn(f"Empty of {file_uri}, init")
+                res[file_uri] = []
 
             message = engine.formatMessage(diag)
+            logger.warn(message)
             line = sm.getLineNumber(diag.location)
+            logger.warn(line)
             col = sm.getColumnNumber(diag.location)
+            logger.warn(col)
             severity = engine.getSeverity(diag.code, diag.location)
+            logger.warn(type(severity))
+            if severity == pyslang.DiagnosticSeverity.Error:
+                logger.warn(101)
+                severity = DiagnosticSeverity.Error
+            elif severity == pyslang.DiagnosticSeverity.Note:
+                logger.warn(102)
+                severity = DiagnosticSeverity.Information
+            elif severity == pyslang.DiagnosticSeverity.Warning:
+                logger.warn(103)
+                severity = DiagnosticSeverity.Warning
+            else:
+                logger.warn(104)
+                severity = DiagnosticSeverity.Error
+            logger.warn(severity)
 
-            res.append(
+            res[file_uri].append(
                 DiagnosticReport(
-                    file_name,
                     message,
                     severity,
                     line,
                     col,
                 )
             )
+            logger.warn(f"{message}")
         logger.warn(f"actual result {client.getString()}")
         return res
 
