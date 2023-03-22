@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pyslang = "^2.0.0"
+pyslang = "3.0.0"
 pygls = "^1.0.1"
 
 
